@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# dusk_tweak — set view parameters in .DAWN_1.history (identical interface to dawn_tweak)
+#
+# This is a thin wrapper around the same .DAWN_1.history file format that dawn_tweak uses.
+# It is provided for documentation and discoverability; you can use dawn_tweak directly.
+#
+# Usage: dusk_tweak [options] [-d <dir>]
+#   --theta  <deg>      elevation angle
+#   --phi    <deg>      azimuth angle
+#   --mag    <float>    magnification
+#   --draw   <int>      drawing mode (1=wireframe 2=+hidden 3=outline)
+#   -x/-y/-z <float>    target coordinates
+#   --light-theta <deg> light elevation
+#   --light-phi   <deg> light azimuth
+#   -d, --dawn-dir <dir> directory containing .DAWN_1.history (default: .)
+
+# Simply delegate to dawn_tweak if available in PATH, otherwise inline the same logic.
+if command -v dawn_tweak &>/dev/null; then
+  exec dawn_tweak "$@"
+fi
+
+# Inline fallback (mirrors dawn_tweak logic exactly)
+OUT_FILE=".DAWN_1.history"
+DAWN_RUN_DIR="."
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case $key in
+    --theta)
+      sed -i '3d' "${DAWN_RUN_DIR}/${OUT_FILE}"
+      sed -i "3i${2}" "${DAWN_RUN_DIR}/${OUT_FILE}"
+      shift; shift ;;
+    --phi)
+      sed -i '2d' "${DAWN_RUN_DIR}/${OUT_FILE}"
+      sed -i "2i${2}" "${DAWN_RUN_DIR}/${OUT_FILE}"
+      shift; shift ;;
+    -x)
+      sed -i '5d' "${DAWN_RUN_DIR}/${OUT_FILE}"
+      sed -i "5i${2}" "${DAWN_RUN_DIR}/${OUT_FILE}"
+      shift; shift ;;
+    -y)
+      sed -i '6d' "${DAWN_RUN_DIR}/${OUT_FILE}"
+      sed -i "6i${2}" "${DAWN_RUN_DIR}/${OUT_FILE}"
+      shift; shift ;;
+    -z)
+      sed -i '7d' "${DAWN_RUN_DIR}/${OUT_FILE}"
+      sed -i "7i${2}" "${DAWN_RUN_DIR}/${OUT_FILE}"
+      shift; shift ;;
+    --mag)
+      sed -i '8d' "${DAWN_RUN_DIR}/${OUT_FILE}"
+      sed -i "8i${2}" "${DAWN_RUN_DIR}/${OUT_FILE}"
+      shift; shift ;;
+    --draw)
+      sed -i '9d' "${DAWN_RUN_DIR}/${OUT_FILE}"
+      sed -i "9i${2}" "${DAWN_RUN_DIR}/${OUT_FILE}"
+      shift; shift ;;
+    --light-phi)
+      sed -i '18d' "${DAWN_RUN_DIR}/${OUT_FILE}"
+      sed -i "18i${2}" "${DAWN_RUN_DIR}/${OUT_FILE}"
+      shift; shift ;;
+    --light-theta)
+      sed -i '19d' "${DAWN_RUN_DIR}/${OUT_FILE}"
+      sed -i "19i${2}" "${DAWN_RUN_DIR}/${OUT_FILE}"
+      shift; shift ;;
+    -d|--dawn-dir)
+      DAWN_RUN_DIR="$2"; shift; shift ;;
+    -i)
+      OUT_FILE="$2"; shift; shift ;;
+    *) POSITIONAL+=("$1"); shift ;;
+  esac
+done
