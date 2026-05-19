@@ -87,6 +87,7 @@ int main(int argc, char** argv) {
   if (argc < 2) {
     std::cerr << "Usage: dusk -d file.stp [--theta deg] [--phi deg] "
                  "[--mag f] [--draw 1|2|3] [-x f] [-y f] [-z f] "
+                 "[--mesh-deflection mm] [--mesh-ang-deflection rad] [--parallel] "
                  "[--history file] [-o output.svg]\n";
     return 1;
   }
@@ -156,9 +157,10 @@ int main(int argc, char** argv) {
   // ------------------------------------------------------------------
   // 1b. Tessellate for PolyAlgo (required before HLR)
   // ------------------------------------------------------------------
-  std::cerr << "[dusk] Meshing geometry...\n";
-  BRepMesh_IncrementalMesh mesher(shape, /*deflection=*/1.0, /*isRelative=*/false,
-                                   /*angDeflection=*/0.5, /*isParallel=*/true);
+  std::cerr << "[dusk] Meshing geometry (deflection=" << params.mesh_deflection
+            << "mm)...\n";
+  BRepMesh_IncrementalMesh mesher(shape, params.mesh_deflection, /*isRelative=*/false,
+                                   params.mesh_ang_deflection, params.mesh_parallel);
   mesher.Perform();
 
   // ------------------------------------------------------------------

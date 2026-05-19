@@ -24,15 +24,18 @@
 #include <vector>
 
 struct ViewParams {
-  double phi{90.0};        // azimuth  [deg]
-  double theta{90.0};      // elevation [deg]
+  double phi{90.0};          // azimuth  [deg]
+  double theta{90.0};        // elevation [deg]
   double target_x{0.0};
   double target_y{0.0};
   double target_z{0.0};
   double magnification{1.0};
-  int    draw_mode{1};     // 1=wireframe, 2=+hidden, 3=outline
+  int    draw_mode{1};       // 1=wireframe, 2=+hidden, 3=outline
   double light_phi{90.0};
   double light_theta{180.0};
+  double mesh_deflection{5.0}; // linear mesh deflection in mm (larger = faster/coarser)
+  double mesh_ang_deflection{0.5}; // angular mesh deflection in radians
+  bool   mesh_parallel{false};    // parallel meshing (can use more memory)
 };
 
 /// Read a .DAWN_1.history file.  Missing or unreadable lines keep defaults.
@@ -81,6 +84,7 @@ inline ViewParams parseHistory(const std::string& filename) {
 
 /// Parse dusk / dawn CLI arguments, applying overrides on top of a ViewParams base.
 /// Recognised flags: --theta --phi --mag --draw -x -y -z --light-theta --light-phi
+///                   --mesh-deflection --mesh-ang-deflection --parallel
 /// Returns remaining (positional) arguments.
 inline std::vector<std::string> applyCliArgs(int argc, char** argv,
                                               ViewParams& p,
@@ -116,6 +120,12 @@ inline std::vector<std::string> applyCliArgs(int argc, char** argv,
       p.light_theta = std::stod(nextArg());
     } else if (arg == "--light-phi") {
       p.light_phi = std::stod(nextArg());
+    } else if (arg == "--mesh-deflection") {
+      p.mesh_deflection = std::stod(nextArg());
+    } else if (arg == "--mesh-ang-deflection") {
+      p.mesh_ang_deflection = std::stod(nextArg());
+    } else if (arg == "--parallel") {
+      p.mesh_parallel = true;
     } else {
       positional.push_back(arg);
     }
