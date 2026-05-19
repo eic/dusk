@@ -1,15 +1,14 @@
 // duskcut.cc — OCCT-based replacement for dawncut
 //
-// Cut a STEP file by a half-space defined by plane n·x = d.
-// Keeps the portion of the geometry where n·x <= d (same convention as dawncut).
+// Cut a STEP file using the same convention as dawncut.
+// dawncut convention: plane  ax + by + cz + d = 0
+//   - Clips (removes) the front side:  ax+by+cz+d > 0
+//   - Keeps  the back  side:           ax+by+cz+d ≤ 0
 //
-// Usage:  duskcut nx ny nz d input.stp [output.stp]
-//
-// The cutting plane normal is (nx, ny, nz) and the signed offset is d (mm).
-// Geometry on the side n·x <= d is retained (i.e. the half-space "behind" the plane).
+// Usage:  duskcut a b c d input.stp [output.stp]
 //
 // Example (same as dawncut):
-//   duskcut -1 0 0 1 detector.stp cut.stp   → keeps x >= 1 mm (normal points -x)
+//   duskcut -1 0 0 1 detector.stp cut.stp   → keeps x >= 1 mm
 
 #include "StepLoader.h"
 
@@ -34,10 +33,10 @@ namespace fs = std::filesystem;
 
 int main(int argc, char** argv) {
   if (argc < 6) {
-    std::cerr << "Usage: duskcut nx ny nz d input.stp [output.stp]\n"
+    std::cerr << "Usage: duskcut a b c d input.stp [output.stp]\n"
               << "\n"
-              << "Cuts the STEP geometry by the half-space n·x <= d.\n"
-              << "Arguments match dawncut: nx ny nz = plane normal, d = signed offset (mm).\n";
+              << "Cuts the STEP geometry using dawncut convention: plane ax+by+cz+d=0.\n"
+              << "The front side (ax+by+cz+d > 0) is clipped; the back side is kept.\n";
     return 1;
   }
 
@@ -76,12 +75,17 @@ int main(int argc, char** argv) {
 
   // ------------------------------------------------------------------
   // 2. Build half-space solid
-  //    Plane: n·x = d  (passes through point n*d, normal n)
-  //    We keep the side where n·x <= d, i.e. the "behind" side.
+  //    dawncut convention: plane equation is  ax + by + cz + d = 0
+  //    i.e. the plane passes through  p0 = -(a,b,c)*d/|n|^2
+  //    and the normal points in the (a,b,c) direction.
+  //    dawncut clips (removes) the front side: ax+by+cz+d > 0.
+  //    We therefore KEEP the back side:        ax+by+cz+d <= 0,
+  //    i.e. the half-space opposite the normal direction.
   // ------------------------------------------------------------------
-  gp_Dir  planeNorm(nx, ny, nz);
-  gp_Pnt  planeOrig(nx*d, ny*d, nz*d);
-  gp_Pln  cuttingPlane(planeOrig, planeNorm);
+  double len2 = nx*nx + ny*ny + nz*nz;  // |n|^2 (before normalisation)
+  gp_Dir planeNorm(nx, ny, nz);          // gp_Dir normalises automatically
+  gp_Pnt planeOrig(-nx*d/len2, -ny*d/len2, -nz*d/len2);
+  gp_Pln cuttingPlane(planeOrig, planeNorm);
 
   // Make a large face on the plane
   const double faceSize = 2.0e6; // 2 km — larger than any EIC detector
@@ -89,10 +93,10 @@ int main(int argc, char** argv) {
                                                    -faceSize, faceSize,
                                                    -faceSize, faceSize);
 
-  // A point on the side we KEEP (n·x < d → move opposite to normal)
-  gp_Pnt keepPoint(planeOrig.X() - nx * faceSize * 0.5,
-                   planeOrig.Y() - ny * faceSize * 0.5,
-                   planeOrig.Z() - nz * faceSize * 0.5);
+  // A point deep on the KEEP side (opposite to the normal = dawncut back side)
+  gp_Pnt keepPoint(planeOrig.X() - (nx/len) * faceSize,
+                   planeOrig.Y() - (ny/len) * faceSize,
+                   planeOrig.Z() - (nz/len) * faceSize);
 
   BRepPrimAPI_MakeHalfSpace halfSpaceMaker(planeFace, keepPoint);
   if (!halfSpaceMaker.IsDone()) {
