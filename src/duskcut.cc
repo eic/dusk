@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
   double nx = 0.0;
   double ny = 0.0;
   double nz = 0.0;
-  double d = 0.0;
+  double d  = 0.0;
   try {
     nx = std::stod(argv[1]);
     ny = std::stod(argv[2]);
