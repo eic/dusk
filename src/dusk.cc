@@ -108,6 +108,7 @@ int main(int argc, char** argv) {
 
     // Extract -o / --output before applyCliArgs (it doesn't know about -o)
     std::vector<std::string> filtered;
+    filtered.reserve(static_cast<size_t>(argc));  // Reserve to avoid reallocations
     for (int i = 1; i < argc; ++i) {
       std::string arg(argv[i]);
       if ((arg == "-o" || arg == "--output") && i + 1 < argc) {
@@ -153,6 +154,8 @@ int main(int argc, char** argv) {
     // 1. Load STEP
     // ------------------------------------------------------------------
     TopoDS_Shape shape;
+    // Inner try-catch provides a more specific error message for STEP loading failures,
+    // distinguishing them from other errors that might occur in the program.
     try {
       shape = loadStep(inputFile);
     } catch (const std::exception& e) {
