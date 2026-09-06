@@ -3,4 +3,4 @@
 - [CI Sample Gallery](ci-gallery.md)
 - **CI Reports**
   - [Geometry Fixture Images](reports/geometry-images.html)
-  - [EPIC Geometry Images](reports/epic-geometry-images.html)
+  - [ePIC Geometry Images](reports/epic-geometry-images.html)
