@@ -1,6 +1,6 @@
 - [Overview](overview.md)
 - [Usage](usage.md)
-- [CI Sample Gallery](ci-gallery.md)
+- [CI Sample Galleries](ci-gallery.md)
 - **CI Reports**
   - [Geometry Fixture Images](reports/geometry-images.html)
   - [ePIC Geometry Images](reports/epic-geometry-images.html)
