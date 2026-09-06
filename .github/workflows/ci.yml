@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y lcov ninja-build
+
+      - name: Configure
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Debug
+          -DDUSK_BUILD_APPS=OFF
+          -DDUSK_ENABLE_TESTS=ON
+          -DDUSK_ENABLE_COVERAGE=ON
+
+      - name: Build
+        run: cmake --build build --target unit_tests
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Collect coverage
+        run: |
+          lcov --capture --directory build --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' '*/_deps/*' --output-file coverage.info
+          lcov --list coverage.info
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.info
+          fail_ci_if_error: false
+          use_oidc: true
