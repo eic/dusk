@@ -295,5 +295,8 @@ int main(int argc, char** argv) {
   } catch (const std::exception& e) {
     std::cerr << "Unexpected error: " << e.what() << "\n";
     return 1;
+  } catch (...) {
+    std::cerr << "Unknown error occurred.\n";
+    return 1;
   }
 }
