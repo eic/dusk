@@ -299,7 +299,7 @@ int main(int argc, char** argv) {
     std::cerr << "Error: " << e.what() << "\n";
     return 1;
   } catch (...) {
-    std::cerr << "Unknown error occurred.\n";
+    std::cerr << "Error: unknown exception (non-standard type).\n";
     return 1;
   }
 }
