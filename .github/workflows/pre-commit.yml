@@ -56,6 +56,8 @@ jobs:
 
       - name: Commit and push autofixes
         if: ${{ steps.precommit.outputs.changed == 'true' && env.SAME_REPO_PR == 'true' }}
+        env:
+          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -63,7 +65,7 @@ jobs:
           git add -A
           git commit -m "style: apply pre-commit fixes"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+          git push origin HEAD:refs/heads/"${BRANCH_NAME}"
 
       - name: Enforce pre-commit result
         shell: bash
