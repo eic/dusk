@@ -87,3 +87,13 @@ CI runs these tests and uploads coverage via Codecov.
 ## License
 
 Apache 2.0
+
+## Documentation
+
+Docs are served with Docsify at:
+
+- <https://eic.github.io/dusk/>
+
+The CI-generated NIST sample gallery is published at:
+
+- <https://eic.github.io/dusk/reports/geometry-images.html>

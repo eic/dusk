@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>dusk</title>
+  <meta name="description" content="dusk documentation and CI-generated geometry gallery">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+</head>
+<body>
+  <div id="app">Loading...</div>
+  <script>
+    window.$docsify = {
+      name: 'dusk',
+      repo: 'https://github.com/eic/dusk',
+      loadSidebar: true,
+      subMaxLevel: 2,
+      auto2top: true,
+      homepage: 'overview.md',
+      coverpage: '_coverpage.md',
+      search: {
+        paths: 'auto',
+        placeholder: 'Search docs...',
+        noData: 'No results.',
+      },
+      plugins: [
+        function(hook) {
+          hook.init(function() {
+            var standaloneHtmlPattern = /^#\/reports\/[^?#]*\.html(\?|$)/;
+            function redirectStandalonePage() {
+              var hash = window.location.hash;
+              if (standaloneHtmlPattern.test(hash)) {
+                var base = window.location.pathname.replace(/[^\/]*$/, '');
+                window.location.replace(base + hash.replace('#/', ''));
+              }
+            }
+            redirectStandalonePage();
+            window.addEventListener('hashchange', redirectStandalonePage);
+          });
+        }
+      ],
+    };
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cmake.min.js"></script>
+</body>
+</html>
