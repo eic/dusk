@@ -24,18 +24,18 @@
 #include <vector>
 
 struct ViewParams {
-  double phi{90.0};          // azimuth  [deg]
-  double theta{90.0};        // elevation [deg]
+  double phi{90.0};   // azimuth  [deg]
+  double theta{90.0}; // elevation [deg]
   double target_x{0.0};
   double target_y{0.0};
   double target_z{0.0};
   double magnification{1.0};
-  int    draw_mode{1};       // 1=wireframe, 2=+hidden, 3=outline
+  int draw_mode{1}; // 1=wireframe, 2=+hidden, 3=outline
   double light_phi{90.0};
   double light_theta{180.0};
-  double mesh_deflection{5.0}; // linear mesh deflection in mm (larger = faster/coarser)
+  double mesh_deflection{5.0};     // linear mesh deflection in mm (larger = faster/coarser)
   double mesh_ang_deflection{0.5}; // angular mesh deflection in radians
-  bool   mesh_parallel{false};    // parallel meshing (can use more memory)
+  bool mesh_parallel{false};       // parallel meshing (can use more memory)
 };
 
 /// Read a .DAWN_1.history file.  Missing or unreadable lines keep defaults.
@@ -57,27 +57,29 @@ inline ViewParams parseHistory(const std::string& filename) {
     if (lineIdx >= 0 && lineIdx < static_cast<int>(lines.size())) {
       std::istringstream ss(lines[lineIdx]);
       double v;
-      if (ss >> v) out = v;
+      if (ss >> v)
+        out = v;
     }
   };
   auto readInt = [&](int lineIdx, int& out) {
     if (lineIdx >= 0 && lineIdx < static_cast<int>(lines.size())) {
       std::istringstream ss(lines[lineIdx]);
       int v;
-      if (ss >> v) out = v;
+      if (ss >> v)
+        out = v;
     }
   };
 
   // line indices are 0-based; dawn_tweak uses 1-based sed line numbers
-  readDouble(1, p.phi);          // line 2
-  readDouble(2, p.theta);        // line 3
-  readDouble(4, p.target_x);    // line 5
-  readDouble(5, p.target_y);    // line 6
-  readDouble(6, p.target_z);    // line 7
+  readDouble(1, p.phi);           // line 2
+  readDouble(2, p.theta);         // line 3
+  readDouble(4, p.target_x);      // line 5
+  readDouble(5, p.target_y);      // line 6
+  readDouble(6, p.target_z);      // line 7
   readDouble(7, p.magnification); // line 8
-  readInt   (8, p.draw_mode);   // line 9
-  readDouble(17, p.light_phi);  // line 18
-  readDouble(18, p.light_theta); // line 19
+  readInt(8, p.draw_mode);        // line 9
+  readDouble(17, p.light_phi);    // line 18
+  readDouble(18, p.light_theta);  // line 19
 
   return p;
 }
@@ -86,15 +88,14 @@ inline ViewParams parseHistory(const std::string& filename) {
 /// Recognised flags: --theta --phi --mag --draw -x -y -z --light-theta --light-phi
 ///                   --mesh-deflection --mesh-ang-deflection --parallel
 /// Returns remaining (positional) arguments.
-inline std::vector<std::string> applyCliArgs(int argc, char** argv,
-                                              ViewParams& p,
-                                              std::string& inputFile,
-                                              std::string& historyFile) {
+inline std::vector<std::string> applyCliArgs(int argc, const char* const* argv, ViewParams& p,
+                                             std::string& inputFile, std::string& historyFile) {
   std::vector<std::string> positional;
   for (int i = 1; i < argc; ++i) {
     std::string arg = argv[i];
-    auto nextArg = [&]() -> std::string {
-      if (i + 1 < argc) return argv[++i];
+    auto nextArg    = [&]() -> std::string {
+      if (i + 1 < argc)
+        return argv[++i];
       std::cerr << "[dusk] Missing value for " << arg << "\n";
       return "";
     };
@@ -134,12 +135,11 @@ inline std::vector<std::string> applyCliArgs(int argc, char** argv,
 }
 
 /// Convert theta/phi (degrees) to a unit eye-direction vector.
-inline void thetaPhiToDir(double theta_deg, double phi_deg,
-                           double& dx, double& dy, double& dz) {
+inline void thetaPhiToDir(double theta_deg, double phi_deg, double& dx, double& dy, double& dz) {
   const double deg2rad = M_PI / 180.0;
-  double th = theta_deg * deg2rad;
-  double ph = phi_deg   * deg2rad;
-  dx = std::sin(th) * std::cos(ph);
-  dy = std::sin(th) * std::sin(ph);
-  dz = std::cos(th);
+  double th            = theta_deg * deg2rad;
+  double ph            = phi_deg * deg2rad;
+  dx                   = std::sin(th) * std::cos(ph);
+  dy                   = std::sin(th) * std::sin(ph);
+  dz                   = std::cos(th);
 }

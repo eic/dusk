@@ -27,13 +27,13 @@ TEST_CASE("parseHistory uses defaults when file is missing") {
 TEST_CASE("parseHistory reads mapped lines from history file") {
   const auto path = testutils::uniqueTempPath("dusk_history_test", ".txt");
   std::vector<std::string> lines(19, "0");
-  lines[1] = "12.5";
-  lines[2] = "33.0";
-  lines[4] = "1.25";
-  lines[5] = "-2.5";
-  lines[6] = "3.75";
-  lines[7] = "2.2";
-  lines[8] = "3";
+  lines[1]  = "12.5";
+  lines[2]  = "33.0";
+  lines[4]  = "1.25";
+  lines[5]  = "-2.5";
+  lines[6]  = "3.75";
+  lines[7]  = "2.2";
+  lines[8]  = "3";
   lines[17] = "45.0";
   lines[18] = "135.0";
 
@@ -62,22 +62,44 @@ TEST_CASE("applyCliArgs applies command-line overrides and positional args") {
   std::string inputFile;
   std::string historyFile = ".DAWN_1.history";
 
-  std::vector<std::string> args = {
-      "dusk",        "-d",          "detector.stp", "--history", "custom.history",
-      "--theta",     "10",          "--phi",        "20",        "--mag",
-      "1.5",         "--draw",      "2",            "-x",        "3.1",
-      "-y",          "-4.2",        "-z",           "5.3",       "--light-theta",
-      "140",         "--light-phi", "60",           "--mesh-deflection",
-      "0.7",         "--mesh-ang-deflection", "0.25", "--parallel", "positional_a",
-      "positional_b"};
+  std::vector<std::string> args = {"dusk",
+                                   "-d",
+                                   "detector.stp",
+                                   "--history",
+                                   "custom.history",
+                                   "--theta",
+                                   "10",
+                                   "--phi",
+                                   "20",
+                                   "--mag",
+                                   "1.5",
+                                   "--draw",
+                                   "2",
+                                   "-x",
+                                   "3.1",
+                                   "-y",
+                                   "-4.2",
+                                   "-z",
+                                   "5.3",
+                                   "--light-theta",
+                                   "140",
+                                   "--light-phi",
+                                   "60",
+                                   "--mesh-deflection",
+                                   "0.7",
+                                   "--mesh-ang-deflection",
+                                   "0.25",
+                                   "--parallel",
+                                   "positional_a",
+                                   "positional_b"};
   std::vector<char*> cargs;
   cargs.reserve(args.size());
   for (auto& s : args) {
     cargs.push_back(s.data());
   }
 
-  auto positional = applyCliArgs(static_cast<int>(cargs.size()), cargs.data(), p,
-                                 inputFile, historyFile);
+  auto positional =
+      applyCliArgs(static_cast<int>(cargs.size()), cargs.data(), p, inputFile, historyFile);
 
   REQUIRE(inputFile == "detector.stp");
   REQUIRE(historyFile == "custom.history");

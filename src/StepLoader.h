@@ -3,8 +3,9 @@
 
 #include <BRep_Builder.hxx>
 #include <BRepTools.hxx>
+#include <NCollection_Sequence.hxx>
 #include <STEPCAFControl_Reader.hxx>
-#include <TDF_LabelSequence.hxx>
+#include <TDF_Label.hxx>
 #include <TDocStd_Document.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Compound.hxx>
@@ -28,9 +29,9 @@ inline TopoDS_Shape loadStep(const std::string& filename) {
 
   // Read the STEP file
   STEPCAFControl_Reader reader;
-  reader.SetColorMode(Standard_True);
-  reader.SetNameMode(Standard_True);
-  reader.SetLayerMode(Standard_True);
+  reader.SetColorMode(true);
+  reader.SetNameMode(true);
+  reader.SetLayerMode(true);
 
   IFSelect_ReturnStatus status = reader.ReadFile(filename.c_str());
   if (status != IFSelect_RetDone) {
@@ -42,24 +43,23 @@ inline TopoDS_Shape loadStep(const std::string& filename) {
   }
 
   // Collect all free (top-level) shapes
-  Handle(XCAFDoc_ShapeTool) shapeTool =
-      XCAFDoc_DocumentTool::ShapeTool(doc->Main());
+  Handle(XCAFDoc_ShapeTool) shapeTool = XCAFDoc_DocumentTool::ShapeTool(doc->Main());
 
-  TDF_LabelSequence freeLabels;
+  NCollection_Sequence<TDF_Label> freeLabels;
   shapeTool->GetFreeShapes(freeLabels);
 
   if (freeLabels.IsEmpty()) {
     throw std::runtime_error("No shapes found in STEP file: " + filename);
   }
 
-  std::cerr << "[dusk] Loaded " << freeLabels.Size() << " top-level shape(s) from "
-            << filename << std::endl;
+  std::cerr << "[dusk] Loaded " << freeLabels.Size() << " top-level shape(s) from " << filename
+            << std::endl;
 
   // Build a compound from all free shapes
   BRep_Builder builder;
   TopoDS_Compound compound;
   builder.MakeCompound(compound);
-  for (Standard_Integer i = 1; i <= freeLabels.Size(); ++i) {
+  for (int i = 1; i <= freeLabels.Size(); ++i) {
     TopoDS_Shape shape = shapeTool->GetShape(freeLabels.Value(i));
     if (!shape.IsNull()) {
       builder.Add(compound, shape);
