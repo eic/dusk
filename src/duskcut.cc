@@ -139,7 +139,10 @@ int main(int argc, char* argv[]) {
     std::cerr << "[duskcut] Wrote " << outputFile << "\n";
     return 0;
   } catch (const Standard_Failure& e) {
-    std::cerr << "Error: OCCT failure: " << e.what() << "\n";
+    // NOLINTNEXTLINE(clang-diagnostic-deprecated-declarations)
+    const char* message           = e.GetMessageString();
+    const std::string occtMessage = (message != nullptr) ? message : "unknown OCCT error";
+    std::cerr << "Error: OCCT failure: " << occtMessage << "\n";
     return 1;
   } catch (const std::exception& e) {
     std::cerr << "Error: " << e.what() << "\n";
