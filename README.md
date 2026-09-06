@@ -62,6 +62,28 @@ Requires [OpenCASCADE](https://dev.opencascade.org/) 7.x (tested with 7.9.1).
 In the EIC software environment (eic-shell) it is available at
 `/opt/software/linux-x86_64_v2/opencascade-7.9.1-*/`.
 
+## Testing
+
+Unit tests cover parser and SVG writer logic and do not require OCCT.
+
+```bash
+cmake -S . -B build-tests -DDUSK_BUILD_APPS=OFF -DDUSK_ENABLE_TESTS=ON
+cmake --build build-tests --target unit_tests
+ctest --test-dir build-tests --output-on-failure
+```
+
+To enable gcov/lcov instrumentation locally:
+
+```bash
+cmake -S . -B build-tests \
+  -DDUSK_BUILD_APPS=OFF \
+  -DDUSK_ENABLE_TESTS=ON \
+  -DDUSK_ENABLE_COVERAGE=ON \
+  -DCMAKE_BUILD_TYPE=Debug
+```
+
+CI runs these tests and uploads coverage via Codecov.
+
 ## License
 
 Apache 2.0
