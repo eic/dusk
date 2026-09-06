@@ -40,10 +40,19 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  double nx             = std::stod(argv[1]);
-  double ny             = std::stod(argv[2]);
-  double nz             = std::stod(argv[3]);
-  double d              = std::stod(argv[4]);
+  double nx;
+  double ny;
+  double nz;
+  double d;
+  try {
+    nx = std::stod(argv[1]);
+    ny = std::stod(argv[2]);
+    nz = std::stod(argv[3]);
+    d  = std::stod(argv[4]);
+  } catch (const std::exception& e) {
+    std::cerr << "Error parsing plane normal/offset: " << e.what() << "\n";
+    return 1;
+  }
   std::string inputFile = argv[5];
   std::string outputFile =
       (argc >= 7) ? argv[6] : (fs::path(inputFile).stem().string() + "_cut.stp");
