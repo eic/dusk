@@ -50,7 +50,7 @@ jobs:
           use_oidc: true
 
   build-and-gallery:
-    name: Build and render sample galleries (eic_ci)
+    name: Build and render sample galleries (eic_xl)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -62,10 +62,10 @@ jobs:
       - name: Install CVMFS
         uses: cvmfs-contrib/github-action-cvmfs@72f2a8d366043978d6aebee154bc9ed321c2f2a8 # v5
 
-      - name: Build and render galleries inside eic_ci container
+      - name: Build and render galleries inside eic_xl container
         uses: eic/run-cvmfs-osg-eic-shell@bb99ea62f0bfff9dfc3c37396d7a5fcdf0801b56 # v1
         with:
-          platform-release: "eic_ci:nightly"
+          platform-release: "eic_xl:nightly"
           setup: /opt/detector/epic-main/bin/thisepic.sh
           run: |
             set -euo pipefail
