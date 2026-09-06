@@ -88,7 +88,7 @@ inline ViewParams parseHistory(const std::string& filename) {
 /// Recognised flags: --theta --phi --mag --draw -x -y -z --light-theta --light-phi
 ///                   --mesh-deflection --mesh-ang-deflection --parallel
 /// Returns remaining (positional) arguments.
-inline std::vector<std::string> applyCliArgs(int argc, char** argv, ViewParams& p,
+inline std::vector<std::string> applyCliArgs(int argc, const char* const* argv, ViewParams& p,
                                              std::string& inputFile, std::string& historyFile) {
   std::vector<std::string> positional;
   for (int i = 1; i < argc; ++i) {

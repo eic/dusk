@@ -88,7 +88,12 @@ static void polylineBounds(const std::vector<Polyline>& pls, double& xmin, doubl
   }
 }
 
-int main(int argc, char** argv) {
+static std::vector<std::string> collectArgs(int argc, char* argv[]) {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  return {argv, argv + argc};
+}
+
+int main(int argc, char* argv[]) {
   try {
     if (argc < 2) {
       std::cerr << "Usage: dusk -d file.stp [--theta deg] [--phi deg] "
@@ -102,6 +107,7 @@ int main(int argc, char** argv) {
     std::string inputFile;
     std::string historyFile = ".DAWN_1.history";
     std::string outputFile;
+    std::vector<std::string> args = collectArgs(argc, argv);
 
     // Parse history file first, then CLI overrides
     ViewParams params = parseHistory(historyFile);
@@ -110,18 +116,19 @@ int main(int argc, char** argv) {
     std::vector<std::string> filtered;
     filtered.reserve(static_cast<size_t>(argc - 1)); // Reserve to avoid reallocations
     for (int i = 1; i < argc; ++i) {
-      std::string arg(argv[i]);
+      std::string arg(args.at(static_cast<size_t>(i)));
       if ((arg == "-o" || arg == "--output") && i + 1 < argc) {
-        outputFile = argv[++i];
+        ++i;
+        outputFile = args.at(static_cast<size_t>(i));
       } else {
         filtered.push_back(arg);
       }
     }
     // Rebuild argc/argv-like structure for applyCliArgs
-    std::vector<char*> fargv;
-    fargv.push_back(argv[0]);
+    std::vector<const char*> fargv;
+    fargv.push_back(args.at(0).c_str());
     for (auto& s : filtered) {
-      fargv.push_back(const_cast<char*>(s.c_str()));
+      fargv.push_back(s.c_str());
     }
 
     applyCliArgs(static_cast<int>(fargv.size()), fargv.data(), params, inputFile, historyFile);
