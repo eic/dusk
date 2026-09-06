@@ -8,15 +8,6 @@ option(DUSK_BUILD_APPS "Build dusk and duskcut executables" ON)
 option(DUSK_ENABLE_TESTS "Build unit tests" ON)
 option(DUSK_ENABLE_COVERAGE "Build with gcov/lcov coverage instrumentation" OFF)
 
-if(DUSK_ENABLE_COVERAGE)
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-O0 -g --coverage)
-    add_link_options(--coverage)
-  else()
-    message(WARNING "Coverage requested, but compiler does not support --coverage")
-  endif()
-endif()
-
 if(DUSK_BUILD_APPS)
   # Find OCCT — hint at the eic-shell installation
   find_package(OpenCASCADE REQUIRED
