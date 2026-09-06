@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
 
     // Extract -o / --output before applyCliArgs (it doesn't know about -o)
     std::vector<std::string> filtered;
-    filtered.reserve(static_cast<size_t>(argc));  // Reserve to avoid reallocations
+    filtered.reserve(static_cast<size_t>(argc - 1));  // Reserve to avoid reallocations
     for (int i = 1; i < argc; ++i) {
       std::string arg(argv[i]);
       if ((arg == "-o" || arg == "--output") && i + 1 < argc) {
@@ -296,7 +296,7 @@ int main(int argc, char** argv) {
     std::cerr << "[dusk] Wrote " << outputFile << "\n";
     return 0;
   } catch (const std::exception& e) {
-    std::cerr << "Unexpected error: " << e.what() << "\n";
+    std::cerr << "Error: " << e.what() << "\n";
     return 1;
   } catch (...) {
     std::cerr << "Unknown error occurred.\n";
