@@ -21,8 +21,7 @@ TEST_CASE("SVGWriter writes SVG header, path, and footer") {
 
   std::ifstream in(path);
   REQUIRE(in.is_open());
-  const std::string content((std::istreambuf_iterator<char>(in)),
-                            std::istreambuf_iterator<char>());
+  const std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 
   REQUIRE(content.find("<?xml version=\"1.0\" encoding=\"UTF-8\"?>") != std::string::npos);
   REQUIRE(content.find("viewBox=\"0 0 100 50\"") != std::string::npos);
@@ -48,8 +47,7 @@ TEST_CASE("SVGWriter ignores degenerate polylines") {
 
   std::ifstream in(path);
   REQUIRE(in.is_open());
-  const std::string content((std::istreambuf_iterator<char>(in)),
-                            std::istreambuf_iterator<char>());
+  const std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 
   REQUIRE(content.find("<path d=\"") == std::string::npos);
 

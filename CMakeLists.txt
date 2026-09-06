@@ -14,6 +14,7 @@ if(DUSK_BUILD_APPS)
     HINTS
       ENV OpenCASCADE_DIR
       /opt/software/linux-x86_64_v2/opencascade-7.9.1-tnvuxyqignnf2xgka4kufuj2j26va4tu/lib/cmake/opencascade
+      /usr/lib/x86_64-linux-gnu/cmake/opencascade
       /opt/local/lib/cmake/opencascade
       /usr/lib/cmake/opencascade
   )

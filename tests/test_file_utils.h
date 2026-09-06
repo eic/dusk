@@ -15,8 +15,8 @@ inline fs::path uniqueTempPath(const std::string& prefix, const std::string& ext
   static std::atomic<std::uint64_t> counter{0};
   static std::random_device rd;
 
-  const auto now = std::chrono::steady_clock::now().time_since_epoch().count();
-  const auto suffix = counter.fetch_add(1, std::memory_order_relaxed);
+  const auto now     = std::chrono::steady_clock::now().time_since_epoch().count();
+  const auto suffix  = counter.fetch_add(1, std::memory_order_relaxed);
   const auto entropy = (static_cast<std::uint64_t>(rd()) << 32) ^ static_cast<std::uint64_t>(rd());
 
   return fs::temp_directory_path() /
@@ -28,4 +28,4 @@ inline void removeNoThrow(const fs::path& path) {
   std::error_code ec;
   fs::remove(path, ec);
 }
-}  // namespace testutils
+} // namespace testutils

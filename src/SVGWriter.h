@@ -7,7 +7,9 @@
 #include <string>
 #include <vector>
 
-struct Point2D { double x, y; };
+struct Point2D {
+  double x, y;
+};
 using Polyline = std::vector<Point2D>;
 
 class SVGWriter {
@@ -26,8 +28,10 @@ public:
   void writeHeader() {
     m_out << R"(<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     width=")" << m_width << R"(mm" height=")" << m_height << R"(mm"
-     viewBox="0 0 )" << m_width << " " << m_height << R"(">
+     width=")"
+          << m_width << R"(mm" height=")" << m_height << R"(mm"
+     viewBox="0 0 )"
+          << m_width << " " << m_height << R"(">
 <rect width="100%" height="100%" fill="white"/>
 )";
   }
@@ -52,7 +56,8 @@ public:
   /// @param cx      SVG canvas centre x (mm)
   /// @param cy      SVG canvas centre y (mm)
   void writePath(const Polyline& pts, double scale, double cx, double cy) {
-    if (pts.size() < 2) return;
+    if (pts.size() < 2)
+      return;
     m_out << "<path d=\"";
     bool first = true;
     for (const auto& p : pts) {
@@ -69,9 +74,7 @@ public:
     m_out << "\"/>\n";
   }
 
-  void writeFooter() {
-    m_out << "</svg>\n";
-  }
+  void writeFooter() { m_out << "</svg>\n"; }
 
   bool isOpen() const { return m_out.is_open(); }
 

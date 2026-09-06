@@ -84,6 +84,29 @@ cmake -S . -B build-tests \
 
 CI runs these tests and uploads coverage via Codecov.
 
+## Code style and static analysis
+
+`dusk` uses `clang-format`, `clang-tidy`, and `pre-commit` in CI.
+
+Set up local hooks:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Run formatting and checks locally before pushing:
+
+```bash
+pre-commit run --all-files
+```
+
+CI behavior:
+
+- `pre-commit` enforces formatting and hygiene checks.
+- For same-repository pull requests, CI auto-commits pre-commit fixes back to the PR branch.
+- `clang-tidy` runs in CI and posts fix suggestions as pull request comments.
+
 ## License
 
 Apache 2.0

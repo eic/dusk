@@ -1,0 +1,82 @@
+name: clang-tidy
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang-format \
+            clang-tidy \
+            clang-tools \
+            cmake \
+            libocct-foundation-dev \
+            libocct-modeling-data-dev \
+            libocct-modeling-algorithms-dev \
+            libocct-data-exchange-dev
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy on pull request files
+        if: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          mapfile -t changed_files < <(git diff --name-only \
+            --diff-filter=ACMR \
+            "${{ github.event.pull_request.base.sha }}" \
+            "${{ github.event.pull_request.head.sha }}" \
+            -- '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.hxx')
+
+          if [[ ${#changed_files[@]} -eq 0 ]]; then
+            printf 'Diagnostics: []\n' > clang_tidy_fixes.yaml
+            exit 0
+          fi
+
+          run-clang-tidy -p build -quiet -export-fixes clang_tidy_fixes.yaml "${changed_files[@]}"
+
+      - name: Run clang-tidy on all files
+        if: ${{ github.event_name == 'push' }}
+        run: run-clang-tidy -p build -quiet -export-fixes clang_tidy_fixes.yaml
+
+      - name: Upload clang-tidy fixes artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: clang-tidy-fixes.yaml
+          path: clang_tidy_fixes.yaml
+          if-no-files-found: ignore
+
+      - name: Suggest clang-tidy fixes as PR comments
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: platisd/clang-tidy-pr-comments@28cfb84edafa771c044bde7e4a2a3fae57463818
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          clang_tidy_fixes: clang_tidy_fixes.yaml
+          request_changes: true
+          suggestions_per_comment: 10
+
+      - name: Fail on clang-tidy diagnostics
+        if: ${{ hashFiles('clang_tidy_fixes.yaml') != '' }}
+        shell: bash
+        run: |
+          if grep -q "DiagnosticName:" clang_tidy_fixes.yaml; then
+            echo "clang-tidy diagnostics were reported."
+            exit 1
+          fi

@@ -42,8 +42,7 @@ inline TopoDS_Shape loadStep(const std::string& filename) {
   }
 
   // Collect all free (top-level) shapes
-  Handle(XCAFDoc_ShapeTool) shapeTool =
-      XCAFDoc_DocumentTool::ShapeTool(doc->Main());
+  Handle(XCAFDoc_ShapeTool) shapeTool = XCAFDoc_DocumentTool::ShapeTool(doc->Main());
 
   TDF_LabelSequence freeLabels;
   shapeTool->GetFreeShapes(freeLabels);
@@ -52,8 +51,8 @@ inline TopoDS_Shape loadStep(const std::string& filename) {
     throw std::runtime_error("No shapes found in STEP file: " + filename);
   }
 
-  std::cerr << "[dusk] Loaded " << freeLabels.Size() << " top-level shape(s) from "
-            << filename << std::endl;
+  std::cerr << "[dusk] Loaded " << freeLabels.Size() << " top-level shape(s) from " << filename
+            << std::endl;
 
   // Build a compound from all free shapes
   BRep_Builder builder;

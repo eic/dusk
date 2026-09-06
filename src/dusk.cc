@@ -51,7 +51,8 @@ static Polyline discretiseEdge(const TopoDS_Edge& edge, double deflection = 0.5)
   Polyline pts;
   BRepAdaptor_Curve curve(edge);
   GCPnts_QuasiUniformDeflection disc(curve, deflection);
-  if (!disc.IsDone()) return pts;
+  if (!disc.IsDone())
+    return pts;
   for (int i = 1; i <= disc.NbPoints(); ++i) {
     gp_Pnt p = disc.Value(i);
     pts.push_back({p.X(), p.Y()});
@@ -60,26 +61,27 @@ static Polyline discretiseEdge(const TopoDS_Edge& edge, double deflection = 0.5)
 }
 
 // Walk all edges in a compound shape and collect 2D polylines.
-static std::vector<Polyline> extractPolylines(const TopoDS_Shape& compound,
-                                               double deflection) {
+static std::vector<Polyline> extractPolylines(const TopoDS_Shape& compound, double deflection) {
   std::vector<Polyline> result;
   for (TopExp_Explorer ex(compound, TopAbs_EDGE); ex.More(); ex.Next()) {
     Polyline pl = discretiseEdge(TopoDS::Edge(ex.Current()), deflection);
-    if (pl.size() >= 2) result.push_back(std::move(pl));
+    if (pl.size() >= 2)
+      result.push_back(std::move(pl));
   }
   return result;
 }
 
 // Compute bounding box of all polylines.
-static void polylineBounds(const std::vector<Polyline>& pls,
-                            double& xmin, double& xmax,
-                            double& ymin, double& ymax) {
-  xmin = ymin =  std::numeric_limits<double>::max();
+static void polylineBounds(const std::vector<Polyline>& pls, double& xmin, double& xmax,
+                           double& ymin, double& ymax) {
+  xmin = ymin = std::numeric_limits<double>::max();
   xmax = ymax = -std::numeric_limits<double>::max();
   for (const auto& pl : pls)
     for (const auto& p : pl) {
-      xmin = std::min(xmin, p.x); xmax = std::max(xmax, p.x);
-      ymin = std::min(ymin, p.y); ymax = std::max(ymax, p.y);
+      xmin = std::min(xmin, p.x);
+      xmax = std::max(xmax, p.x);
+      ymin = std::min(ymin, p.y);
+      ymax = std::max(ymax, p.y);
     }
 }
 
@@ -103,7 +105,7 @@ int main(int argc, char** argv) {
   // Extract -o / --output before applyCliArgs (it doesn't know about -o)
   std::vector<std::string> filtered;
   for (int i = 1; i < argc; ++i) {
-    if ((std::string(argv[i]) == "-o" || std::string(argv[i]) == "--output") && i+1 < argc) {
+    if ((std::string(argv[i]) == "-o" || std::string(argv[i]) == "--output") && i + 1 < argc) {
       outputFile = argv[++i];
     } else {
       filtered.push_back(argv[i]);
@@ -112,16 +114,15 @@ int main(int argc, char** argv) {
   // Rebuild argc/argv-like structure for applyCliArgs
   std::vector<char*> fargv;
   fargv.push_back(argv[0]);
-  for (auto& s : filtered) fargv.push_back(const_cast<char*>(s.c_str()));
+  for (auto& s : filtered)
+    fargv.push_back(const_cast<char*>(s.c_str()));
 
-  applyCliArgs(static_cast<int>(fargv.size()), fargv.data(),
-               params, inputFile, historyFile);
+  applyCliArgs(static_cast<int>(fargv.size()), fargv.data(), params, inputFile, historyFile);
 
   // Re-parse history if --history was given on CLI
   if (historyFile != ".DAWN_1.history") {
     params = parseHistory(historyFile);
-    applyCliArgs(static_cast<int>(fargv.size()), fargv.data(),
-                 params, inputFile, historyFile);
+    applyCliArgs(static_cast<int>(fargv.size()), fargv.data(), params, inputFile, historyFile);
   }
 
   if (inputFile.empty()) {
@@ -138,10 +139,9 @@ int main(int argc, char** argv) {
   std::cerr << "[dusk] Input:  " << inputFile << "\n"
             << "[dusk] Output: " << outputFile << "\n"
             << "[dusk] theta=" << params.theta << " phi=" << params.phi
-            << " mag=" << params.magnification
-            << " draw=" << params.draw_mode << "\n"
-            << "[dusk] target=(" << params.target_x << "," << params.target_y
-            << "," << params.target_z << ")\n";
+            << " mag=" << params.magnification << " draw=" << params.draw_mode << "\n"
+            << "[dusk] target=(" << params.target_x << "," << params.target_y << ","
+            << params.target_z << ")\n";
 
   // ------------------------------------------------------------------
   // 1. Load STEP
@@ -157,10 +157,9 @@ int main(int argc, char** argv) {
   // ------------------------------------------------------------------
   // 1b. Tessellate for PolyAlgo (required before HLR)
   // ------------------------------------------------------------------
-  std::cerr << "[dusk] Meshing geometry (deflection=" << params.mesh_deflection
-            << "mm)...\n";
+  std::cerr << "[dusk] Meshing geometry (deflection=" << params.mesh_deflection << "mm)...\n";
   BRepMesh_IncrementalMesh mesher(shape, params.mesh_deflection, /*isRelative=*/false,
-                                   params.mesh_ang_deflection, params.mesh_parallel);
+                                  params.mesh_ang_deflection, params.mesh_parallel);
   mesher.Perform();
 
   // ------------------------------------------------------------------
@@ -181,11 +180,13 @@ int main(int argc, char** argv) {
   gp_Vec upVec(upDir);
   gp_Vec eyeVec(eyeDir);
   upVec = upVec - eyeVec * eyeVec.Dot(upVec);
-  if (upVec.Magnitude() < 1e-9) { upVec = gp_Vec(0, 1, 0); }
+  if (upVec.Magnitude() < 1e-9) {
+    upVec = gp_Vec(0, 1, 0);
+  }
   upDir = gp_Dir(upVec);
 
   gp_Ax2 cameraAx(target, eyeDir, upDir);
-  HLRAlgo_Projector projector(cameraAx);  // orthographic
+  HLRAlgo_Projector projector(cameraAx); // orthographic
 
   // ------------------------------------------------------------------
   // 3. Hidden Line Removal
@@ -199,8 +200,8 @@ int main(int argc, char** argv) {
   HLRBRep_PolyHLRToShape hlrShape;
   hlrShape.Update(hlrAlgo);
 
-  TopoDS_Shape visEdges  = hlrShape.VCompound();     // visible
-  TopoDS_Shape hidEdges  = hlrShape.HCompound();     // hidden
+  TopoDS_Shape visEdges = hlrShape.VCompound(); // visible
+  TopoDS_Shape hidEdges = hlrShape.HCompound(); // hidden
 
   // ------------------------------------------------------------------
   // 4. Extract 2D polylines (HLR output is already in view-plane coords)
@@ -213,8 +214,8 @@ int main(int argc, char** argv) {
     hidPoly = extractPolylines(hidEdges, deflection);
   }
 
-  std::cerr << "[dusk] Visible polylines: " << visPoly.size()
-            << "  Hidden: " << hidPoly.size() << "\n";
+  std::cerr << "[dusk] Visible polylines: " << visPoly.size() << "  Hidden: " << hidPoly.size()
+            << "\n";
 
   // ------------------------------------------------------------------
   // 5. Compute bounding box and scale
@@ -230,19 +231,21 @@ int main(int argc, char** argv) {
   polylineBounds(allPoly, xmin, xmax, ymin, ymax);
 
   const double margin_mm = 10.0;
-  const double page_w = 297.0;
-  const double page_h = 210.0;
-  double draw_w = page_w - 2*margin_mm;
-  double draw_h = page_h - 2*margin_mm;
+  const double page_w    = 297.0;
+  const double page_h    = 210.0;
+  double draw_w          = page_w - 2 * margin_mm;
+  double draw_h          = page_h - 2 * margin_mm;
 
   double model_w = (xmax - xmin);
   double model_h = (ymax - ymin);
-  if (model_w < 1e-9) model_w = 1.0;
-  if (model_h < 1e-9) model_h = 1.0;
+  if (model_w < 1e-9)
+    model_w = 1.0;
+  if (model_h < 1e-9)
+    model_h = 1.0;
 
   // Scale: fit to page, then apply magnification factor
   double auto_scale = std::min(draw_w / model_w, draw_h / model_h);
-  double scale = auto_scale * params.magnification;
+  double scale      = auto_scale * params.magnification;
 
   // Canvas centre
   double cx = page_w / 2.0;

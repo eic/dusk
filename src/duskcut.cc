@@ -40,27 +40,28 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  double nx = std::stod(argv[1]);
-  double ny = std::stod(argv[2]);
-  double nz = std::stod(argv[3]);
-  double d  = std::stod(argv[4]);
-  std::string inputFile  = argv[5];
-  std::string outputFile = (argc >= 7) ? argv[6]
-      : (fs::path(inputFile).stem().string() + "_cut.stp");
+  double nx             = std::stod(argv[1]);
+  double ny             = std::stod(argv[2]);
+  double nz             = std::stod(argv[3]);
+  double d              = std::stod(argv[4]);
+  std::string inputFile = argv[5];
+  std::string outputFile =
+      (argc >= 7) ? argv[6] : (fs::path(inputFile).stem().string() + "_cut.stp");
 
   std::cerr << "[duskcut] Input:  " << inputFile << "\n"
             << "[duskcut] Output: " << outputFile << "\n"
-            << "[duskcut] Plane normal: (" << nx << "," << ny << "," << nz
-            << ")  d=" << d << "\n";
+            << "[duskcut] Plane normal: (" << nx << "," << ny << "," << nz << ")  d=" << d << "\n";
 
   // Normalise the cutting plane normal
-  double len = std::sqrt(nx*nx + ny*ny + nz*nz);
+  double len = std::sqrt(nx * nx + ny * ny + nz * nz);
   if (len < 1e-12) {
     std::cerr << "Error: zero-length plane normal.\n";
     return 1;
   }
-  nx /= len; ny /= len; nz /= len;
-  d  /= len;
+  nx /= len;
+  ny /= len;
+  nz /= len;
+  d /= len;
 
   // ------------------------------------------------------------------
   // 1. Load STEP
@@ -82,21 +83,18 @@ int main(int argc, char** argv) {
   //    We therefore KEEP the back side:        ax+by+cz+d <= 0,
   //    i.e. the half-space opposite the normal direction.
   // ------------------------------------------------------------------
-  double len2 = nx*nx + ny*ny + nz*nz;  // |n|^2 (before normalisation)
-  gp_Dir planeNorm(nx, ny, nz);          // gp_Dir normalises automatically
-  gp_Pnt planeOrig(-nx*d/len2, -ny*d/len2, -nz*d/len2);
+  gp_Dir planeNorm(nx, ny, nz); // nx, ny, nz are already normalised above
+  gp_Pnt planeOrig(-nx * d, -ny * d, -nz * d);
   gp_Pln cuttingPlane(planeOrig, planeNorm);
 
   // Make a large face on the plane
   const double faceSize = 2.0e6; // 2 km — larger than any EIC detector
-  TopoDS_Face planeFace = BRepBuilderAPI_MakeFace(cuttingPlane,
-                                                   -faceSize, faceSize,
-                                                   -faceSize, faceSize);
+  TopoDS_Face planeFace =
+      BRepBuilderAPI_MakeFace(cuttingPlane, -faceSize, faceSize, -faceSize, faceSize);
 
   // A point deep on the KEEP side (opposite to the normal = dawncut back side)
-  gp_Pnt keepPoint(planeOrig.X() - (nx/len) * faceSize,
-                   planeOrig.Y() - (ny/len) * faceSize,
-                   planeOrig.Z() - (nz/len) * faceSize);
+  gp_Pnt keepPoint(planeOrig.X() - nx * faceSize, planeOrig.Y() - ny * faceSize,
+                   planeOrig.Z() - nz * faceSize);
 
   BRepPrimAPI_MakeHalfSpace halfSpaceMaker(planeFace, keepPoint);
   if (!halfSpaceMaker.IsDone()) {
