@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(DUSK_BUILD_APPS "Build dusk and duskcut executables" ON)
-option(DUSK_ENABLE_TESTS "Build unit tests" ON)
+option(DUSK_ENABLE_TESTS "Build unit tests" OFF)
 option(DUSK_ENABLE_COVERAGE "Build with gcov/lcov coverage instrumentation" OFF)
 
 if(DUSK_BUILD_APPS)

@@ -1,17 +1,18 @@
 #include "HistoryParser.h"
+#include "test_file_utils.h"
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
 
-namespace fs = std::filesystem;
-
 TEST_CASE("parseHistory uses defaults when file is missing") {
-  ViewParams p = parseHistory("__missing_history_file__.txt");
+  const auto path = testutils::uniqueTempPath("dusk_missing_history_test", ".txt");
+  testutils::removeNoThrow(path);
+
+  ViewParams p = parseHistory(path.string());
   REQUIRE(p.phi == Catch::Approx(90.0));
   REQUIRE(p.theta == Catch::Approx(90.0));
   REQUIRE(p.target_x == Catch::Approx(0.0));
@@ -24,7 +25,7 @@ TEST_CASE("parseHistory uses defaults when file is missing") {
 }
 
 TEST_CASE("parseHistory reads mapped lines from history file") {
-  fs::path path = fs::temp_directory_path() / "dusk_history_test.txt";
+  const auto path = testutils::uniqueTempPath("dusk_history_test", ".txt");
   std::vector<std::string> lines(19, "0");
   lines[1] = "12.5";
   lines[2] = "33.0";
@@ -53,7 +54,7 @@ TEST_CASE("parseHistory reads mapped lines from history file") {
   REQUIRE(p.light_phi == Catch::Approx(45.0));
   REQUIRE(p.light_theta == Catch::Approx(135.0));
 
-  fs::remove(path);
+  testutils::removeNoThrow(path);
 }
 
 TEST_CASE("applyCliArgs applies command-line overrides and positional args") {

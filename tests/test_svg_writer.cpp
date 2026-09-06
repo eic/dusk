@@ -1,15 +1,13 @@
 #include "SVGWriter.h"
+#include "test_file_utils.h"
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <filesystem>
 #include <fstream>
 #include <string>
 
-namespace fs = std::filesystem;
-
 TEST_CASE("SVGWriter writes SVG header, path, and footer") {
-  fs::path path = fs::temp_directory_path() / "dusk_svg_writer_test.svg";
+  const auto path = testutils::uniqueTempPath("dusk_svg_writer_test", ".svg");
 
   {
     SVGWriter writer(path.string(), 100.0, 50.0);
@@ -32,11 +30,11 @@ TEST_CASE("SVGWriter writes SVG header, path, and footer") {
   REQUIRE(content.find("<path d=\"M 10 20 L 20 15 L 30 25\"/>") != std::string::npos);
   REQUIRE(content.find("</svg>") != std::string::npos);
 
-  fs::remove(path);
+  testutils::removeNoThrow(path);
 }
 
 TEST_CASE("SVGWriter ignores degenerate polylines") {
-  fs::path path = fs::temp_directory_path() / "dusk_svg_writer_degenerate_test.svg";
+  const auto path = testutils::uniqueTempPath("dusk_svg_writer_degenerate_test", ".svg");
 
   {
     SVGWriter writer(path.string(), 10.0, 10.0);
@@ -55,5 +53,5 @@ TEST_CASE("SVGWriter ignores degenerate polylines") {
 
   REQUIRE(content.find("<path d=\"") == std::string::npos);
 
-  fs::remove(path);
+  testutils::removeNoThrow(path);
 }
