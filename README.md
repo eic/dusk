@@ -109,7 +109,7 @@ CI behavior:
 
 ## License
 
-Apache 2.0
+LGPL 2.1
 
 ## Documentation
 
