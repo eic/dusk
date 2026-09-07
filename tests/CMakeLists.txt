@@ -16,7 +16,7 @@ target_include_directories(unit_tests PRIVATE
   ${PROJECT_SOURCE_DIR}/src
 )
 target_link_libraries(unit_tests PRIVATE Catch2::Catch2WithMain)
-target_compile_features(unit_tests PRIVATE cxx_std_17)
+target_compile_features(unit_tests PRIVATE cxx_std_20)
 if(DUSK_ENABLE_COVERAGE)
   if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(unit_tests PRIVATE -O0 -g --coverage)
