@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Use link path automatically - includes directories from linked libraries
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# Build RPATH to include the build directory libraries
+# Use $ORIGIN-relative paths when CMake generates build-tree RPATH entries
 set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 
 # Set RPATH for installed executables
