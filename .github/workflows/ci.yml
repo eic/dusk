@@ -88,7 +88,10 @@ jobs:
             mkdir -p ci/epic-step docs/reports/epic-geometry-images
             : "${DETECTOR_PATH:=/opt/detector/epic-main/share/epic}"
             export DETECTOR_PATH DETECTOR_CACHE=/opt/detector/epic-main/share/epic
-            npdet_to_step -o ci/epic-step/epic-inner-detector "$DETECTOR_PATH/epic_inner_detector.xml" 2>&1 | sed '/TGeoMatrix::dtor/d'
+            IFS=$' \n\t'
+            declare -A detectors
+            while IFS= read -r d; do detectors[$d]='-l 3'; done < <(npdet_to_step list "$DETECTOR_PATH/epic_inner_detector.xml" | sed '/world/d;s/.*(vol: \(.*\)).*/\1/g')
+            npdet_to_step $(for d in ${!detectors[@]} ; do echo part ${detectors[$d]} $d ; done) -o ci/epic-step/epic-inner-detector "$DETECTOR_PATH/epic_inner_detector.xml" 2>&1 | sed '/TGeoMatrix::dtor/d'
 
             python3 .github/scripts/render_nist_gallery.py \
               build/dusk \
