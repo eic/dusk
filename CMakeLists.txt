@@ -14,7 +14,7 @@ set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 # Set RPATH for installed executables
 # Include both relative paths (for relocatable installs) and system paths
 if(NOT CMAKE_INSTALL_RPATH)
-  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN")
+  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib;$ORIGIN")
 endif()
 
 # Skip RPATH for system-installed libraries
