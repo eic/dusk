@@ -86,11 +86,12 @@ jobs:
               docs/reports/geometry-images.html
 
             mkdir -p ci/epic-step docs/reports/epic-geometry-images
-            export DETECTOR_CACHE=/opt/detector/epic-main/share/epic
+            : "${DETECTOR_PATH:=/opt/detector/epic-main}"
+            export DETECTOR_PATH DETECTOR_CACHE=/opt/detector/epic-main/share/epic
             # Follow ePIC CI syntax so conversion behavior tracks upstream workflows.
             IFS=$' \n\t'
             declare -A detectors
-            while read d ; do detectors[$d]='-l 3' ; done <<< $(npdet_to_step list "$DETECTOR_PATH/epic.xml" | sed '/world/d;s/.*(vol: \(.*\)).*/\1/g')
+            while IFS= read -r d; do detectors[$d]='-l 3'; done < <(npdet_to_step list "$DETECTOR_PATH/epic.xml" | sed '/world/d;s/.*(vol: \(.*\)).*/\1/g')
             detectors[EcalBarrelImaging]='-l 4'
             detectors[HcalBarrel]='-l 1'
             detectors[LFHCAL]='-l 2'
