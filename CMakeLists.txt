@@ -4,6 +4,22 @@ project(dusk VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable RPATH for executable linking
+# Use link path automatically - includes directories from linked libraries
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# Use $ORIGIN-relative paths when CMake generates build-tree RPATH entries
+set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+
+# Set RPATH for installed executables
+# Include both relative paths (for relocatable installs) and system paths
+if(NOT CMAKE_INSTALL_RPATH)
+  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib;$ORIGIN")
+endif()
+
+# Skip RPATH for system-installed libraries
+set(CMAKE_SKIP_INSTALL_RPATH FALSE)
+
 option(DUSK_BUILD_APPS "Build dusk and duskcut executables" ON)
 option(DUSK_ENABLE_TESTS "Build unit tests" OFF)
 option(DUSK_ENABLE_COVERAGE "Build with gcov/lcov coverage instrumentation" OFF)
