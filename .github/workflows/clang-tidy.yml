@@ -57,7 +57,7 @@ jobs:
         run: run-clang-tidy -p build -quiet -export-fixes clang_tidy_fixes.yaml
 
       - name: Upload clang-tidy fixes artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: clang-tidy-fixes.yaml
           path: clang_tidy_fixes.yaml
