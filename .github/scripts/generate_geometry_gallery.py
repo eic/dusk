@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
+import argparse
 import html
-import sys
 from pathlib import Path
 
 
@@ -16,7 +16,31 @@ def caption_from_name(stem: str) -> str:
     return stem.replace("-", " ")
 
 
-def generate_page(items: list[tuple[str, str]]) -> str:
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Generate a simple static HTML gallery from image files."
+    )
+    parser.add_argument("images_dir", type=Path)
+    parser.add_argument("output_html", type=Path)
+    parser.add_argument(
+        "--title",
+        default="dusk geometry fixture gallery",
+        help="HTML page title.",
+    )
+    parser.add_argument(
+        "--heading",
+        default="dusk geometry fixture images",
+        help="Main page heading.",
+    )
+    parser.add_argument(
+        "--meta",
+        default="Generated from NIST CTC STEP fixtures in CI.",
+        help="Metadata sentence shown below heading.",
+    )
+    return parser.parse_args()
+
+
+def generate_page(items: list[tuple[str, str]], title: str, heading: str, meta: str) -> str:
     cards = []
     for src, caption in items:
         cards.append(
@@ -32,7 +56,7 @@ def generate_page(items: list[tuple[str, str]]) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>dusk geometry fixture gallery</title>
+  <title>{html.escape(title)}</title>
   <style>
     body {{
       font-family: Arial, sans-serif;
@@ -71,8 +95,8 @@ def generate_page(items: list[tuple[str, str]]) -> str:
   </style>
 </head>
 <body>
-  <h1>dusk geometry fixture images</h1>
-  <p class="meta">Generated from NIST CTC STEP fixtures in CI.</p>
+  <h1>{html.escape(heading)}</h1>
+  <p class="meta">{html.escape(meta)}</p>
   <section class="grid">
 {gallery}
   </section>
@@ -82,12 +106,9 @@ def generate_page(items: list[tuple[str, str]]) -> str:
 
 
 def main() -> int:
-    if len(sys.argv) != 3:
-        print("Usage: generate_geometry_gallery.py <images_dir> <output_html>", file=sys.stderr)
-        return 1
-
-    images_dir = Path(sys.argv[1])
-    output_html = Path(sys.argv[2])
+    args = parse_args()
+    images_dir = args.images_dir
+    output_html = args.output_html
     output_html.parent.mkdir(parents=True, exist_ok=True)
 
     exts = ("*.svg", "*.png", "*.jpg", "*.jpeg")
@@ -101,7 +122,10 @@ def main() -> int:
         for img in image_files
     ]
 
-    output_html.write_text(generate_page(items), encoding="utf-8")
+    output_html.write_text(
+        generate_page(items, title=args.title, heading=args.heading, meta=args.meta),
+        encoding="utf-8",
+    )
     print(f"Wrote gallery page: {output_html} ({len(items)} images)")
     return 0
 

@@ -117,6 +117,7 @@ Docs are served with Docsify at:
 
 - <https://eic.github.io/dusk/>
 
-The CI-generated NIST sample gallery is published at:
+The CI-generated galleries are published at:
 
 - <https://eic.github.io/dusk/reports/geometry-images.html>
+- <https://eic.github.io/dusk/reports/epic-geometry-images.html>
